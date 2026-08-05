@@ -24,6 +24,9 @@ This repository contains the React frontend interface designed to communicate wi
   * Interactive form built with `react-hook-form` to track new stock tickers.
   * Real-time client-side validation (max symbol length, required fields).
   * Display list for tracked tickers and removal/deletion functionality.
+* [x] **LLM Revenue Stream Analysis UI:**
+  * Interactive research form to request AI-generated company revenue breakdowns.
+  * Structured rendering for LLM JSON outputs (summary, currency and revenue stream cards with estimated percentages and types).
 * [x] **CORS & State Integration:** Cross-origin communication with local FastAPI server with loading state handling and error boundary banners.
 
 ---
@@ -34,6 +37,7 @@ This repository contains the React frontend interface designed to communicate wi
 * [x] Establish Vite + React + TypeScript repository architecture.
 * [x] Connect native `fetch` client to FastAPI `/tickers` endpoints.
 * [x] Build validated ticker input forms and list views.
+* [x] Integrate AI Revenue Research feature connecting to FastAPI `/api/v1/research/revenue-streams` LLM endpoint..
 
 ---
 
