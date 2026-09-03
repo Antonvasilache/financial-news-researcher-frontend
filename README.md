@@ -41,10 +41,10 @@ This repository contains the React frontend interface designed to communicate wi
 
 ---
 
-### Phase 2: Ingestion & Market Data Display
-* [ ] **SEC Filing Explorer View:** UI view to trigger and display status for fetched SEC 10-K/10-Q filing documents.
-* [ ] **Financial Data Summaries:** Components to display structured market data and key company metrics retrieved from backend financial APIs.
-* [ ] **Filing Section Reader:** Document viewing component to read parsed filing sections (e.g., *Item 1A: Risk Factors*).
+### Phase 2: Ingestion & Market Data Display (Completed)
+* [x] **SEC Filing Explorer View:** UI view to trigger and display status for fetched SEC 10-K/10-Q filing documents.
+* [x] **Financial Data Summaries:** Components to display structured market data and key company metrics retrieved from backend financial APIs.
+* [x] **Filing Section Reader:** Document viewing component to read parsed filing sections (e.g., *Item 1A: Risk Factors*).
 
 ---
 
