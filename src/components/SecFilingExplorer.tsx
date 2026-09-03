@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import {
   fetchCompanyFilings,
   fetchLatestFiling,
@@ -31,7 +31,7 @@ export const SecFilingExplorer = ({
   const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearchFilings = async (event?: FormEvent) => {
+  const handleSearchFilings = async (event?: SubmitEvent<HTMLFormElement>) => {
     if (event) event.preventDefault();
     const cleanTicker = ticker.trim().toUpperCase();
     if (!cleanTicker) {
