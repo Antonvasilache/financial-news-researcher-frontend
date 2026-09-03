@@ -31,8 +31,8 @@ export const SecFilingExplorer = ({
   const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearchFilings = async (e?: FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSearchFilings = async (event?: FormEvent) => {
+    if (event) event.preventDefault();
     const cleanTicker = ticker.trim().toUpperCase();
     if (!cleanTicker) {
       setError("Please enter a stock ticker symbol (e.g. AAPL, MSFT)");
@@ -53,8 +53,8 @@ export const SecFilingExplorer = ({
       if (activeFiling && activeFiling.ticker !== cleanTicker) {
         setActiveFiling(null);
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to fetch SEC filings";
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to fetch SEC filings";
       setError(message);
     } finally {
       setIsLoading(false);
@@ -75,8 +75,8 @@ export const SecFilingExplorer = ({
       setError(null);
       const filing = await fetchLatestFiling(cleanTicker, selectedFormType);
       setActiveFiling(filing);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : `Failed to fetch latest ${selectedFormType}`;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : `Failed to fetch latest ${selectedFormType}`;
       setError(message);
     } finally {
       setIsLoading(false);
@@ -96,8 +96,8 @@ export const SecFilingExplorer = ({
         filingItem.form_type
       );
       setActiveFiling(fullFiling);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to load filing sections";
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to load filing sections";
       setError(message);
     } finally {
       setIsLoading(false);
@@ -118,14 +118,14 @@ export const SecFilingExplorer = ({
       {trackedTickers.length > 0 && (
         <div className="tracked-ticker-chips" aria-label="Tracked Tickers Quick Select">
           <span className="chips-label">Quick Select Tracked:</span>
-          {trackedTickers.map((t) => (
+          {trackedTickers.map((trackedTicker) => (
             <button
-              key={t}
+              key={trackedTicker}
               type="button"
-              className={`ticker-chip ${ticker.toUpperCase() === t.toUpperCase() ? "active" : ""}`}
-              onClick={() => setTicker(t.toUpperCase())}
+              className={`ticker-chip ${ticker.toUpperCase() === trackedTicker.toUpperCase() ? "active" : ""}`}
+              onClick={() => setTicker(trackedTicker.toUpperCase())}
             >
-              ${t.toUpperCase()}
+              ${trackedTicker.toUpperCase()}
             </button>
           ))}
         </div>
@@ -140,7 +140,7 @@ export const SecFilingExplorer = ({
             type="text"
             placeholder="e.g. AAPL, NVDA"
             value={ticker}
-            onChange={(e) => setTicker(e.target.value.toUpperCase())}
+            onChange={(event) => setTicker(event.target.value.toUpperCase())}
             maxLength={10}
             className="ticker-input"
           />
@@ -151,7 +151,7 @@ export const SecFilingExplorer = ({
           <select
             id="sec-form-type"
             value={formType}
-            onChange={(e) => setFormType(e.target.value)}
+            onChange={(event) => setFormType(event.target.value)}
             className="select-input"
           >
             <option value="ALL">All Forms</option>
@@ -165,7 +165,7 @@ export const SecFilingExplorer = ({
           <select
             id="sec-limit"
             value={limit}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            onChange={(event) => setLimit(Number(event.target.value))}
             className="select-input"
           >
             <option value={5}>5 Filings</option>
@@ -244,36 +244,36 @@ export const SecFilingExplorer = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {filingsData.filings.map((f) => (
+                  {filingsData.filings.map((filing) => (
                     <tr
-                      key={f.accession_number}
-                      className={activeFiling?.accession_number === f.accession_number ? "active-row" : ""}
+                      key={filing.accession_number}
+                      className={activeFiling?.accession_number === filing.accession_number ? "active-row" : ""}
                     >
                       <td>
                         <span
-                          className={`form-pill form-${f.form_type.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+                          className={`form-pill form-${filing.form_type.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
                         >
-                          {f.form_type}
+                          {filing.form_type}
                         </span>
                       </td>
-                      <td>{f.filing_date}</td>
-                      <td>{f.report_date || "—"}</td>
-                      <td className="mono-text">{f.accession_number}</td>
-                      <td className="desc-cell" title={f.description || f.primary_document}>
-                        {f.description || f.primary_document}
+                      <td>{filing.filing_date}</td>
+                      <td>{filing.report_date || "—"}</td>
+                      <td className="mono-text">{filing.accession_number}</td>
+                      <td className="desc-cell" title={filing.description || filing.primary_document}>
+                        {filing.description || filing.primary_document}
                       </td>
                       <td className="action-cell">
                         <button
                           type="button"
                           className="inspect-btn"
-                          onClick={() => handleInspectFiling(f)}
+                          onClick={() => handleInspectFiling(filing)}
                           disabled={isLoading}
                         >
                           Read Sections
                         </button>
-                        {f.document_url && (
+                        {filing.document_url && (
                           <a
-                            href={f.document_url}
+                            href={filing.document_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="sec-link-btn"

@@ -101,7 +101,7 @@ function App() {
     }
   };
 
-  const trackedSymbols = tickers.map((t) => t.symbol);
+  const trackedSymbols = tickers.map((ticker) => ticker.symbol);
 
   return (
     <main className="container">

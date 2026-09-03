@@ -59,8 +59,8 @@ export const RevenueResearch = ({
 
                     <h4>Revenue Streams</h4>
                     <div className="streams-grid">
-                        {researchData.revenue_streams.map((stream, idx) => (
-                            <div key={idx} className="stream-card">
+                        {researchData.revenue_streams.map((stream, index) => (
+                            <div key={index} className="stream-card">
                                 <h5>{stream.name}</h5>
                                 <span className="badge">{stream.revenue_type}</span>
                                 <p>{stream.description}</p>

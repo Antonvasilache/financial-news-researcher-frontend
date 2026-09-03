@@ -7,7 +7,7 @@ interface FinancialSummaryProps {
 export const FinancialSummary = ({ filing }: FinancialSummaryProps) => {
   const sectionsList = Object.values(filing.sections || {});
   const totalCharacters = sectionsList.reduce(
-    (acc, sec) => acc + (sec.character_count || sec.content?.length || 0),
+    (totalLength, section) => totalLength + (section.character_count || section.content?.length || 0),
     0
   );
 

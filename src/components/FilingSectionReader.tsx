@@ -20,7 +20,7 @@ export const FilingSectionReader = ({ filing }: FilingSectionReaderProps) => {
 
   // Update active tab when filing changes if current tab doesn't exist
   const activeSection: FilingSection | undefined = sections.find(
-    (s) => s.item_id === activeTabKey
+    (section) => section.item_id === activeTabKey
   );
 
   const isRawPreview = activeTabKey === "raw_preview";
@@ -104,7 +104,7 @@ export const FilingSectionReader = ({ filing }: FilingSectionReaderProps) => {
               type="search"
               placeholder="Search in this section..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(event) => setSearchQuery(event.target.value)}
               className="reader-search-input"
               aria-label="Search within section"
             />
