@@ -2,23 +2,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import App from '../App';
-import { tickerApi } from '../api/tickerApi';
-import { researchApi } from '../api/researchApi';
+import * as tickerService from '../services/tickerService';
+import * as researchService from '../services/researchService';
 import type { TickerResponse } from '../types/ticker';
 import type { RevenueStreamResponse } from '../types/research';
 
-vi.mock('../api/tickerApi', () => ({
-    tickerApi: {
-        getAll: vi.fn(),
-        create: vi.fn(),
-        delete: vi.fn(),
-    },
+vi.mock('../services/tickerService', () => ({
+    fetchTickers: vi.fn(),
+    createTicker: vi.fn(),
+    deleteTicker: vi.fn(),
 }));
 
-vi.mock('../api/researchApi', () => ({
-    researchApi: {
-        getRevenueStreams: vi.fn(),
-    },
+vi.mock('../services/researchService', () => ({
+    fetchRevenueStreams: vi.fn(),
 }));
 
 describe('App Component Integration Tests', () => {
@@ -28,15 +24,15 @@ describe('App Component Integration Tests', () => {
     ];
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
     });
 
     it('fetches and renders tickers on initial mount', async () => {
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce(mockTickers);
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce(mockTickers);
 
         render(<App />);
 
-        expect(tickerApi.getAll).toHaveBeenCalledTimes(1);
+        expect(tickerService.fetchTickers).toHaveBeenCalledTimes(1);
 
         await waitFor(() => {
             expect(screen.getByText('AAPL')).toBeInTheDocument();
@@ -45,7 +41,7 @@ describe('App Component Integration Tests', () => {
     });
 
     it('displays error banner if fetching tickers fails on mount', async () => {
-        vi.mocked(tickerApi.getAll).mockRejectedValueOnce(new Error('Network Error'));
+        vi.mocked(tickerService.fetchTickers).mockRejectedValueOnce(new Error('Network Error'));
 
         render(<App />);
 
@@ -56,15 +52,15 @@ describe('App Component Integration Tests', () => {
 
     it('creates a new ticker and reloads tickers list', async () => {
         const user = userEvent.setup();
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce([]);
-        vi.mocked(tickerApi.create).mockResolvedValueOnce({
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce([]);
+        vi.mocked(tickerService.createTicker).mockResolvedValueOnce({
             id: 3,
             symbol: 'NVDA',
             company_name: 'NVIDIA Corporation',
             is_active: true,
             created_at: '2026-01-01',
         });
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce([
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce([
             { id: 3, symbol: 'NVDA', company_name: 'NVIDIA Corporation', is_active: true, created_at: '2026-01-01' },
         ]);
 
@@ -79,7 +75,7 @@ describe('App Component Integration Tests', () => {
         await user.click(screen.getByRole('button', { name: /add ticker/i }));
 
         await waitFor(() => {
-            expect(tickerApi.create).toHaveBeenCalledWith({
+            expect(tickerService.createTicker).toHaveBeenCalledWith({
                 symbol: 'NVDA',
                 company_name: 'NVIDIA Corporation',
             });
@@ -89,8 +85,8 @@ describe('App Component Integration Tests', () => {
 
     it('displays error banner if creating ticker fails', async () => {
         const user = userEvent.setup();
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce([]);
-        vi.mocked(tickerApi.create).mockRejectedValueOnce(new Error('Duplicate symbol'));
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce([]);
+        vi.mocked(tickerService.createTicker).mockRejectedValueOnce(new Error('Duplicate symbol'));
 
         render(<App />);
 
@@ -109,9 +105,9 @@ describe('App Component Integration Tests', () => {
 
     it('deletes a ticker and reloads tickers list', async () => {
         const user = userEvent.setup();
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce(mockTickers);
-        vi.mocked(tickerApi.delete).mockResolvedValueOnce(undefined as unknown as void);
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce([mockTickers[1]]);
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce(mockTickers);
+        vi.mocked(tickerService.deleteTicker).mockResolvedValueOnce(undefined as unknown as void);
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce([mockTickers[1]]);
 
         render(<App />);
 
@@ -123,7 +119,7 @@ describe('App Component Integration Tests', () => {
         await user.click(deleteButtons[0]);
 
         await waitFor(() => {
-            expect(tickerApi.delete).toHaveBeenCalledWith(1);
+            expect(tickerService.deleteTicker).toHaveBeenCalledWith(1);
             expect(screen.queryByText('AAPL')).not.toBeInTheDocument();
             expect(screen.getByText('GOOGL')).toBeInTheDocument();
         });
@@ -131,8 +127,8 @@ describe('App Component Integration Tests', () => {
 
     it('displays error banner if deleting ticker fails', async () => {
         const user = userEvent.setup();
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce(mockTickers);
-        vi.mocked(tickerApi.delete).mockRejectedValueOnce(new Error('Delete prohibited'));
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce(mockTickers);
+        vi.mocked(tickerService.deleteTicker).mockRejectedValueOnce(new Error('Delete prohibited'));
 
         render(<App />);
 
@@ -150,7 +146,7 @@ describe('App Component Integration Tests', () => {
 
     it('analyzes revenue stream and displays results', async () => {
         const user = userEvent.setup();
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce([]);
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce([]);
 
         const mockResearchResult: RevenueStreamResponse = {
             company_name: 'Apple Inc.',
@@ -165,7 +161,7 @@ describe('App Component Integration Tests', () => {
                 },
             ],
         };
-        vi.mocked(researchApi.getRevenueStreams).mockResolvedValueOnce(mockResearchResult);
+        vi.mocked(researchService.fetchRevenueStreams).mockResolvedValueOnce(mockResearchResult);
 
         render(<App />);
 
@@ -173,7 +169,7 @@ describe('App Component Integration Tests', () => {
         await user.click(analyzeButton);
 
         await waitFor(() => {
-            expect(researchApi.getRevenueStreams).toHaveBeenCalledWith({
+            expect(researchService.fetchRevenueStreams).toHaveBeenCalledWith({
                 company_name: 'Apple Inc.',
             });
             expect(screen.getByText('Apple Inc. Revenue Breakdown')).toBeInTheDocument();
@@ -183,8 +179,8 @@ describe('App Component Integration Tests', () => {
 
     it('displays error in revenue research section if revenue analysis fails', async () => {
         const user = userEvent.setup();
-        vi.mocked(tickerApi.getAll).mockResolvedValueOnce([]);
-        vi.mocked(researchApi.getRevenueStreams).mockRejectedValueOnce(new Error('LLM Service Unavailable'));
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce([]);
+        vi.mocked(researchService.fetchRevenueStreams).mockRejectedValueOnce(new Error('LLM Service Unavailable'));
 
         render(<App />);
 
@@ -195,4 +191,33 @@ describe('App Component Integration Tests', () => {
             expect(screen.getByText('LLM Service Unavailable')).toBeInTheDocument();
         });
     });
+
+    it('switches views when clicking dashboard navigation tabs', async () => {
+        const user = userEvent.setup();
+        vi.mocked(tickerService.fetchTickers).mockResolvedValueOnce(mockTickers);
+
+        render(<App />);
+
+        // Switch to SEC Filings tab
+        const secTabBtn = screen.getByRole('button', { name: /sec filing explorer/i });
+        await user.click(secTabBtn);
+
+        expect(screen.getByRole('heading', { name: /sec filing explorer & section reader/i })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: /track new ticker/i })).not.toBeInTheDocument();
+
+        // Switch to Tickers tab
+        const tickersTabBtn = screen.getByRole('button', { name: /tracked tickers/i });
+        await user.click(tickersTabBtn);
+
+        expect(screen.getByRole('heading', { name: /track new ticker/i })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: /sec filing explorer & section reader/i })).not.toBeInTheDocument();
+
+        // Switch back to All Modules
+        const allTabBtn = screen.getByRole('button', { name: /all modules/i });
+        await user.click(allTabBtn);
+
+        expect(screen.getByRole('heading', { name: /sec filing explorer & section reader/i })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /track new ticker/i })).toBeInTheDocument();
+    });
 });
+

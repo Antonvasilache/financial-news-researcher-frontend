@@ -3,7 +3,7 @@ export interface TickerBase {
     company_name: string;
 }
 
-export interface TickerCreate extends TickerBase { }
+export type TickerCreate = TickerBase;
 
 export interface TickerResponse extends TickerBase {
     id: number;
